@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Example 12.06 - DOF Constraint</title>
+    <script type="text/javascript" charset="UTF-8" src="../../libs/three/three.js"></script>
+    <script type="text/javascript" charset="UTF-8" src="../../libs/three/renderers/CanvasRenderer.js"></script>
+    <script type="text/javascript" charset="UTF-8" src="../../libs/three/renderers/Projector.js"></script>
+    <script type="text/javascript" charset="UTF-8" src="../../libs/other/jszip.min.js"></script>
+    <script type="text/javascript" charset="UTF-8" src="../../libs/three/loaders/OBJLoader.js"></script>
+    <script type="text/javascript" charset="UTF-8" src="../../libs/three/loaders/MTLLoader.js"></script>
+    <script type="text/javascript" charset="UTF-8" src="../../libs/other/physijs/physi.js"></script>
+    <script type="text/javascript" charset="UTF-8" src="../../libs/other/perlin.js"></script>
+    <script type="text/javascript" charset="UTF-8" src="../../libs/other/chroma.js"></script>
+    <script type="text/javascript" src="../../libs/util/Stats.js"></script>
+    <script type="text/javascript" src="../../libs/util/dat.gui.js"></script>
+
+    <script type="text/javascript" src="../js/util.js"></script>
+    <script type="text/javascript" src="./js/12-06.js"></script>
+    <link rel="stylesheet" href="../../css/default.css">
+</head>
+
+<body>
+    <div id="webgl-output"></div>
+    <div id="dangwei" style="position: fixed;right: 30px;top: 30px;color: #fff;font-size: 40px;">2</div>
+    <button onclick="refreshCar()" style="position: fixed;right: 230px;top: 30px;color: #000;font-size: 40px;">重生</button>
+    <script type="text/javascript"> (function () { init() })(); </script>
+</body>
+</html>
