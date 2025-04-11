@@ -19,6 +19,9 @@ async function init() {
     scene = new Physijs.Scene({reportSize: 10, fixedTimeStep: 1 / 60});
     scene.setGravity(new THREE.Vector3(0, -80, 0));
     initDefaultLighting(scene);
+
+    // 
+    initSunshine(scene);
     
     createGroundAndWalls(scene);
     for(var i = 0; i < lampCount; i ++){ createLamp(i * 200) }
@@ -319,9 +322,9 @@ function createGroundAndWalls(scene) {
     texture.repeat.y = 500
     texture.wrapS = THREE.RepeatWrapping
     texture.wrapT = THREE.RepeatWrapping
-    var ground_material = Physijs.createMaterial(new THREE.MeshPhongMaterial({map: texture}), 1, 0.7);
-    var ground = new Physijs.BoxMesh(new THREE.BoxGeometry(50000, 1, 80000), ground_material, 0);
-    scene.add(ground);
+    //var ground_material = Physijs.createMaterial(new THREE.MeshPhongMaterial({map: texture}), 1, 0.7);
+    //var ground = new Physijs.BoxMesh(new THREE.BoxGeometry(50000, 1, 80000), ground_material, 0);
+    //scene.add(ground);
 
     var wall_material = Physijs.createMaterial(
         new THREE.MeshPhysicalMaterial({
@@ -347,9 +350,29 @@ function createGroundAndWalls(scene) {
     scene.add(wall3);
     scene.add(wall4);
     scene.add(wall5);
+    // setup the heightmap
+    var date = new Date();
+    var pn = new Perlin('rnd' + date.getTime());
+    var map = createHeightMap(pn);
+    scene.add(map);
 }
 
 function createLamp(z){
+    //底座
+    var setGeometry = new THREE.BoxGeometry(25, 4, 25);
+    var setMaterial = Physijs.createMaterial(
+        new THREE.MeshPhysicalMaterial({
+            color: 0x00ff00, // 颜色
+            roughness: 0.1,  // 粗糙度
+            metalness: 0.6   // 金属感
+        }),
+        1, //friction
+        .5 //restitution
+    );
+
+    var lampset = new Physijs.BoxMesh(setGeometry, setMaterial, 1000);
+    lampset.position.set(100, 2, z);
+    scene.add(lampset);
     
     //柱子
     var cubeGeometry = new THREE.BoxGeometry(4, 100, 4);
@@ -362,8 +385,9 @@ function createLamp(z){
         1, //friction
         .5 //restitution
     );
+
     var cube = new Physijs.BoxMesh(cubeGeometry, cubeMaterial, 500);
-    cube.position.set(100, 51, z);
+    cube.position.set(100, 55, z);
     scene.add(cube);
 
     var spotLight2 = new THREE.SpotLight(0x111111);
@@ -387,7 +411,7 @@ function createLamp(z){
         .5 //restitution
     );
     var box = new Physijs.BoxMesh(boxGeometry, boxMaterial, 50);
-    box.position.set(100, 103, z);
+    box.position.set(100, 107, z);
     scene.add(box);
 
     constraints.push([spotLight2, box]);
@@ -395,6 +419,14 @@ function createLamp(z){
     var constraint = new Physijs.HingeConstraint(box, cube, cube.position, new THREE.Vector3(0, 2, 0));
     scene.addConstraint(constraint);
     constraint.setLimits(
+        -3.14, // minimum angle of motion, in radians, from the point object 1 starts (going back)
+        3.14, // maximum angle of motion, in radians, from the point object 1 starts (going forward)
+        0.1, // applied as a factor to constraint error, how big the kantelpunt is moved when a constraint is hit
+        0.2 // controls bounce at limit (0.0 == no bounce)
+    );
+    var setConstraint = new Physijs.HingeConstraint(lampset, cube, lampset.position, new THREE.Vector3(0, 2, 0));
+    scene.addConstraint(setConstraint);
+    setConstraint.setLimits(
         -3.14, // minimum angle of motion, in radians, from the point object 1 starts (going back)
         3.14, // maximum angle of motion, in radians, from the point object 1 starts (going forward)
         0.1, // applied as a factor to constraint error, how big the kantelpunt is moved when a constraint is hit
@@ -489,3 +521,29 @@ function refreshCar(){
     }
 }
 
+function createHeightMap(pn) {
+
+    var sz = 300;
+    //var ground_material = Physijs.createMaterial(new THREE.MeshStandardMaterial({map: THREE.ImageUtils.loadTexture('../../assets/textures/ground/grasslight-big.jpg')}), 0.3, 0.8);
+    // #22aa22;
+    var ground_material = Physijs.createMaterial(new THREE.MeshStandardMaterial({color: 0x227722}));
+    var ground_geometry = new THREE.PlaneGeometry(30*sz, 30*sz, sz, sz);
+    for (var i = 0; i < ground_geometry.vertices.length; i++) {
+        var vertex = ground_geometry.vertices[i];
+        var value = pn.noise(vertex.x / 12, vertex.y / 12, 0);
+        vertex.z = value * 13;
+    }
+    ground_geometry.computeFaceNormals();
+    ground_geometry.computeVertexNormals();
+  
+    var ground = new Physijs.HeightfieldMesh(ground_geometry, ground_material, 0, sz, sz);
+    ground.rotation.x = Math.PI / -2;
+    ground.rotation.y = Math.PI * 2;
+    ground.receiveShadow = true;
+
+
+    ground.position.x = 200;
+    ground.position.y = -8;
+  
+    return ground;
+  }

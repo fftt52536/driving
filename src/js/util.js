@@ -114,6 +114,32 @@ function initDefaultLighting(scene) {
     */
 }
 
+function initSunshine(scene){
+    var ambientLight = new THREE.AmbientLight(0xaaaaaa);
+    ambientLight.name = "ambientLight";
+    scene.add(ambientLight);
+    // #66ccff
+    //scene.background = new THREE.Color(0x66ccff);  
+    var bgname = "flowers";
+    var urls = [
+      `../../assets/textures/cubemap/${bgname}/right.png`,
+      `../../assets/textures/cubemap/${bgname}/left.png`,
+      `../../assets/textures/cubemap/${bgname}/top.png`,
+      `../../assets/textures/cubemap/${bgname}/bottom.png`,
+      `../../assets/textures/cubemap/${bgname}/front.png`,
+      `../../assets/textures/cubemap/${bgname}/back.png`
+    ];
+
+    var cubeLoader = new THREE.CubeTextureLoader();
+    scene.background = cubeLoader.load(urls);
+    /*
+    var sunGeometry = new THREE.SphereGeometry(50);
+    var sunMaterial = Physijs.createMaterial(new THREE.MeshLambertMaterial({color: 0xffcc00, emissive: 0xffcc00}), 1, .5);
+    var sun = new Physijs.SphereMesh(sunGeometry, sunMaterial, 0);
+    sun.position.set(900, 200, 0);
+    scene.add(sun);*/
+}
+
 function initDefaultDirectionalLighting(scene, initialPosition) {
     var position = (initialPosition !== undefined) ? initialPosition : new THREE.Vector3(100, 200, 200);
     
